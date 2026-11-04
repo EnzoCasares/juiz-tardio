@@ -1,0 +1,70 @@
+name: CI-CD Juiz Tardio
+
+# Quando roda: a cada push na main e a cada pull request para a main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# O workflow so precisa ler o codigo
+permissions:
+  contents: read
+
+# Evita dois deploys ao mesmo tempo na mesma branch
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI - testes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o codigo (checkout)
+        uses: actions/checkout@v7
+
+      - name: Configurar o Python 3.12 com cache do pip
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Instalar as dependencias
+        run: pip install -r requirements-dev.txt
+
+      - name: Rodar os testes (pytest)
+        run: python -m pytest -v
+
+  cd:
+    name: CD - deploy no Render
+    needs: ci
+    # So em push na main. Em pull request o deploy nunca roda.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar o deploy (Deploy Hook do Render)
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Faltou cadastrar o secret RENDER_DEPLOY_HOOK_URL"; exit 1
+          fi
+          curl --fail --silent --show-error "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Verificar se a aplicacao subiu (/health)
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          if [ -z "$APP_URL" ]; then
+            echo "Faltou cadastrar a variavel APP_URL"; exit 1
+          fi
+          for i in $(seq 1 30); do
+            echo "Tentativa $i de 30"
+            if curl --fail --silent --show-error --max-time 30 "$APP_URL/health"; then
+              echo; echo "Aplicacao no ar."; exit 0
+            fi
+            sleep 20
+          done
+          echo "A aplicacao nao respondeu a tempo."; exit 1
