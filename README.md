@@ -22,3 +22,5 @@ Antes, as tools gravavam no banco antes de o juiz falar. Agora o turno inteiro r
 PostgreSQL, MongoDB e Qdrant ligados, e um ".env" na raiz com "GROQ_API_KEY", "DATABASE_URL", "MONGODB_URI", "QDRANT_URL" e "QDRANT_API_KEY". O "TYPESAFE_API_KEY" é opcional e liga o juiz JEV. Sem ele, o juiz usa a Groq. A integração com o Google Calendar também é opcional e usa as credenciais OAuth da conta.
 
 Com a API no ar, o chat abre na raiz do servidor, o perfil em "/perfil.html", o monitor em "/monitor.html" e a documentação da API em "/docs".
+
+Projeto com pipeline de CI/CD no GitHub Actions.
