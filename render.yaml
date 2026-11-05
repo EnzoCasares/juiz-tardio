@@ -6,7 +6,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
-    autoDeployTrigger: "off"   # o deploy so acontece pelo GitHub Actions (Deploy Hook)
+    autoDeployTrigger: "off"
     envVars:
       - key: GROQ_API_KEY
         sync: false

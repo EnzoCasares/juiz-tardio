@@ -23,7 +23,7 @@ try:
     col_sessoes.create_index("session_id")
     col_sessoes.create_index("user_id")
     col_sessoes.create_index("iniciada_em")
-except Exception as erro:  # sem Mongo o app ainda sobe e o /health responde
+except Exception as erro:
     print(f"Aviso: índices do MongoDB não criados ({type(erro).__name__}).")
 
 _PROMPT_RESUMO = """\

@@ -1,17 +1,14 @@
-name: CI-CD Juiz Tardio
+name: CI-CD Assessor IA
 
-# Quando roda: a cada push na main e a cada pull request para a main
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
-# O workflow so precisa ler o codigo
 permissions:
   contents: read
 
-# Evita dois deploys ao mesmo tempo na mesma branch
 concurrency:
   group: ci-cd-${{ github.ref }}
   cancel-in-progress: false
@@ -40,7 +37,6 @@ jobs:
   cd:
     name: CD - deploy no Render
     needs: ci
-    # So em push na main. Em pull request o deploy nunca roda.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
