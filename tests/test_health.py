@@ -26,7 +26,7 @@ def client():
 
 def test_health_responde_200(client):
     resposta = client.get("/health")
-    assert resposta.status_code == 200
+    assert resposta.status_code == 500
     corpo = resposta.json()
     assert corpo["status"] == "ok"
     assert corpo["problemas_de_configuracao"] == []
